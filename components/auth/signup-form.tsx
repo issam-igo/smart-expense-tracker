@@ -1,6 +1,8 @@
 "use client";
 
-import { useId, useMemo, useState, type FormEvent } from "react";
+import { useActionState, useId, useMemo, useState } from "react";
+import { signup, type SignupState } from "@/lib/actions/auth";
+import { SpinnerIcon } from "@/components/spinner-icon";
 
 const passwordRequirements = [
   {
@@ -17,41 +19,38 @@ const passwordRequirements = [
   },
 ];
 
+const initialState: SignupState = undefined;
+
 export function SignupForm() {
+  const [state, formAction, pending] = useActionState(signup, initialState);
+
   const nameId = useId();
   const emailId = useId();
   const passwordId = useId();
   const confirmPasswordId = useId();
-  const errorId = useId();
+  const messageId = useId();
   const requirementsId = useId();
 
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const passwordsMismatch =
     confirmPassword.length > 0 && confirmPassword !== password;
 
+  const fieldErrors = state?.status === "error" ? state.fieldErrors : undefined;
+  const nameError = fieldErrors?.name?.[0];
+  const emailError = fieldErrors?.email?.[0];
+  const passwordError = fieldErrors?.password?.[0];
+  const confirmPasswordError = passwordsMismatch
+    ? "Les mots de passe ne correspondent pas."
+    : fieldErrors?.confirmPassword?.[0];
+
   const inputClassName =
     "block w-full rounded-xl border border-black/10 bg-white px-3.5 py-2.5 text-sm text-foreground shadow-sm outline-none transition-colors placeholder:text-foreground/40 focus:border-brand focus:ring-2 focus:ring-brand/30 dark:border-white/15 dark:bg-white/5";
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setError(null);
-    setIsSubmitting(true);
-
-    // Simulation locale uniquement (aucune authentification ni appel API à ce stade),
-    // pour donner un aperçu fonctionnel des états de chargement et d'erreur.
-    window.setTimeout(() => {
-      setIsSubmitting(false);
-      setError("Un compte existe déjà avec cette adresse email.");
-    }, 900);
-  }
-
   return (
-    <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+    <form action={formAction} className="mt-6 space-y-4">
       <div>
         <label htmlFor={nameId} className="block text-sm font-medium text-foreground">
           Nom
@@ -62,9 +61,16 @@ export function SignupForm() {
           type="text"
           autoComplete="name"
           required
+          aria-invalid={nameError ? true : undefined}
+          aria-describedby={nameError ? `${nameId}-error` : undefined}
           placeholder="Jean Dupont"
           className={`mt-1.5 ${inputClassName}`}
         />
+        {nameError && (
+          <p id={`${nameId}-error`} className="mt-1.5 text-xs text-red-600 dark:text-red-400">
+            {nameError}
+          </p>
+        )}
       </div>
 
       <div>
@@ -77,11 +83,16 @@ export function SignupForm() {
           type="email"
           autoComplete="email"
           required
-          aria-invalid={error ? true : undefined}
-          aria-describedby={error ? errorId : undefined}
+          aria-invalid={emailError ? true : undefined}
+          aria-describedby={emailError ? `${emailId}-error` : undefined}
           placeholder="vous@exemple.com"
           className={`mt-1.5 ${inputClassName}`}
         />
+        {emailError && (
+          <p id={`${emailId}-error`} className="mt-1.5 text-xs text-red-600 dark:text-red-400">
+            {emailError}
+          </p>
+        )}
       </div>
 
       <div>
@@ -95,9 +106,13 @@ export function SignupForm() {
             type={showPassword ? "text" : "password"}
             autoComplete="new-password"
             required
+            minLength={8}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
-            aria-describedby={requirementsId}
+            aria-invalid={passwordError ? true : undefined}
+            aria-describedby={
+              passwordError ? `${passwordId}-error ${requirementsId}` : requirementsId
+            }
             className={`${inputClassName} pr-11`}
           />
           <PasswordToggle
@@ -105,6 +120,11 @@ export function SignupForm() {
             onToggle={() => setShowPassword((prev) => !prev)}
           />
         </div>
+        {passwordError && (
+          <p id={`${passwordId}-error`} className="mt-1.5 text-xs text-red-600 dark:text-red-400">
+            {passwordError}
+          </p>
+        )}
         <PasswordRequirements id={requirementsId} password={password} />
       </div>
 
@@ -124,8 +144,8 @@ export function SignupForm() {
             required
             value={confirmPassword}
             onChange={(event) => setConfirmPassword(event.target.value)}
-            aria-invalid={passwordsMismatch ? true : undefined}
-            aria-describedby={passwordsMismatch ? `${confirmPasswordId}-hint` : undefined}
+            aria-invalid={confirmPasswordError ? true : undefined}
+            aria-describedby={confirmPasswordError ? `${confirmPasswordId}-error` : undefined}
             className={`${inputClassName} pr-11`}
           />
           <PasswordToggle
@@ -133,35 +153,44 @@ export function SignupForm() {
             onToggle={() => setShowPassword((prev) => !prev)}
           />
         </div>
-        {passwordsMismatch && (
+        {confirmPasswordError && (
           <p
-            id={`${confirmPasswordId}-hint`}
+            id={`${confirmPasswordId}-error`}
             className="mt-1.5 text-xs text-red-600 dark:text-red-400"
           >
-            Les mots de passe ne correspondent pas.
+            {confirmPasswordError}
           </p>
         )}
       </div>
 
       <div aria-live="polite">
-        {error && (
+        {state?.status === "error" && state.message && (
           <p
-            id={errorId}
+            id={messageId}
             role="alert"
             className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-400"
           >
-            {error}
+            {state.message}
+          </p>
+        )}
+        {state?.status === "check_email" && state.message && (
+          <p
+            id={messageId}
+            role="status"
+            className="rounded-lg border border-brand/20 bg-brand/10 px-3 py-2 text-sm text-brand"
+          >
+            {state.message}
           </p>
         )}
       </div>
 
       <button
         type="submit"
-        disabled={isSubmitting}
+        disabled={pending}
         className="flex w-full items-center justify-center gap-2 rounded-full bg-brand px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-brand/30 transition-colors hover:bg-brand/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70"
       >
-        {isSubmitting && <SpinnerIcon />}
-        {isSubmitting ? "Création du compte…" : "Créer mon compte"}
+        {pending && <SpinnerIcon />}
+        {pending ? "Création du compte…" : "Créer mon compte"}
       </button>
     </form>
   );
@@ -273,28 +302,6 @@ function DotIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" className="h-3.5 w-3.5 shrink-0" aria-hidden="true">
       <circle cx="12" cy="12" r="4" />
-    </svg>
-  );
-}
-
-function SpinnerIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4 animate-spin" aria-hidden="true">
-      <circle
-        cx="12"
-        cy="12"
-        r="9"
-        stroke="currentColor"
-        strokeWidth="3"
-        className="opacity-25"
-      />
-      <path
-        d="M21 12a9 9 0 0 0-9-9"
-        stroke="currentColor"
-        strokeWidth="3"
-        strokeLinecap="round"
-        className="opacity-90"
-      />
     </svg>
   );
 }
