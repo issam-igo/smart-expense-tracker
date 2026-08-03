@@ -3,6 +3,7 @@ import { createServerClient } from "@supabase/ssr";
 import { getSupabaseEnv } from "@/lib/supabase/env";
 
 const PROTECTED_PATH_PREFIX = "/dashboard";
+const LOGIN_PATH = "/login";
 
 export default async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -43,8 +44,15 @@ export default async function proxy(request: NextRequest) {
   const isProtectedRoute = request.nextUrl.pathname.startsWith(PROTECTED_PATH_PREFIX);
 
   if (isProtectedRoute && !user) {
-    const loginUrl = new URL("/login", request.url);
+    const loginUrl = new URL(LOGIN_PATH, request.url);
     return NextResponse.redirect(loginUrl);
+  }
+
+  const isLoginRoute = request.nextUrl.pathname === LOGIN_PATH;
+
+  if (isLoginRoute && user) {
+    const dashboardUrl = new URL("/dashboard", request.url);
+    return NextResponse.redirect(dashboardUrl);
   }
 
   return response;

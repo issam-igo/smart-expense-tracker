@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { signupSchema } from "@/lib/validation/signup";
+import { loginSchema } from "@/lib/validation/login";
 
 export type SignupState =
   | {
@@ -72,4 +73,41 @@ export async function signup(_prevState: SignupState, formData: FormData): Promi
     status: "check_email",
     message: "Vérifiez votre boîte mail pour confirmer votre compte avant de vous connecter.",
   };
+}
+
+export type LoginState =
+  | {
+      status: "error";
+      fieldErrors?: Record<string, string[] | undefined>;
+      message?: string;
+    }
+  | undefined;
+
+export async function login(_prevState: LoginState, formData: FormData): Promise<LoginState> {
+  const parsed = loginSchema.safeParse({
+    email: formData.get("email"),
+    password: formData.get("password"),
+  });
+
+  if (!parsed.success) {
+    return {
+      status: "error",
+      fieldErrors: parsed.error.flatten().fieldErrors,
+    };
+  }
+
+  const { email, password } = parsed.data;
+  const supabase = await createClient();
+
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+  if (error) {
+    // Message volontairement générique : ne jamais indiquer si l'email existe ou non.
+    return {
+      status: "error",
+      message: "Email ou mot de passe incorrect.",
+    };
+  }
+
+  redirect("/dashboard");
 }
