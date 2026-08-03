@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { EXPENSE_CATEGORIES } from "@/types/expense";
 import { SpinnerIcon } from "@/components/spinner-icon";
 
-const initialValues = {
+const emptyValues = {
   title: "",
   amount: "",
   category: "",
@@ -14,9 +14,14 @@ const initialValues = {
   description: "",
 };
 
-type FormValues = typeof initialValues;
+type FormValues = typeof emptyValues;
 type ValidatedField = "title" | "amount" | "category" | "expenseDate";
 type FormErrors = Partial<Record<ValidatedField, string>>;
+
+interface ExpenseFormProps {
+  mode?: "create" | "edit";
+  initialValues?: Partial<FormValues>;
+}
 
 const fieldOrder: ValidatedField[] = ["title", "amount", "category", "expenseDate"];
 
@@ -57,8 +62,9 @@ function getInputClassName(hasError: boolean) {
   }`;
 }
 
-export function ExpenseForm() {
+export function ExpenseForm({ mode = "create", initialValues }: ExpenseFormProps) {
   const router = useRouter();
+  const isEditMode = mode === "edit";
 
   const titleId = useId();
   const amountId = useId();
@@ -77,17 +83,22 @@ export function ExpenseForm() {
     expenseDate: dateRef,
   };
 
-  const [values, setValues] = useState<FormValues>(initialValues);
+  const [values, setValues] = useState<FormValues>(() => ({
+    ...emptyValues,
+    ...initialValues,
+  }));
   const [errors, setErrors] = useState<FormErrors>({});
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Renseigné après le montage (plutôt qu'à l'initialisation) pour éviter un écart
-  // entre la date figée au build et la date réelle du client au moment du rendu.
+  // En création uniquement : renseigné après le montage (plutôt qu'à l'initialisation)
+  // pour éviter un écart entre la date figée au build et la date réelle du client.
+  // En édition, la date vient déjà de initialValues et ne doit pas être écrasée.
   useEffect(() => {
+    if (isEditMode) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect -- valeur uniquement disponible côté client (Date), pas de source externe à synchroniser
     setValues((current) => (current.expenseDate ? current : { ...current, expenseDate: todayIso() }));
-  }, []);
+  }, [isEditMode]);
 
   function updateField<K extends keyof FormValues>(field: K, value: FormValues[K]) {
     const nextValues = { ...values, [field]: value };
@@ -262,7 +273,13 @@ export function ExpenseForm() {
           className="inline-flex items-center justify-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-white shadow-sm shadow-brand/30 transition-colors hover:bg-brand/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70"
         >
           {isSubmitting && <SpinnerIcon />}
-          {isSubmitting ? "Enregistrement…" : "Enregistrer"}
+          {isSubmitting
+            ? isEditMode
+              ? "Modification…"
+              : "Enregistrement…"
+            : isEditMode
+              ? "Enregistrer les modifications"
+              : "Enregistrer"}
         </button>
       </div>
     </form>
