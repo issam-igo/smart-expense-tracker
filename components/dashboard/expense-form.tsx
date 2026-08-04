@@ -16,7 +16,7 @@ const emptyValues = {
 
 type FormValues = typeof emptyValues;
 type ValidatedField = "title" | "amount" | "category" | "expenseDate";
-type FormErrors = Partial<Record<ValidatedField, string>>;
+type FormErrors = Partial<Record<ValidatedField | "description", string>>;
 
 interface ExpenseFormProps {
   mode?: "create" | "edit";
@@ -76,11 +76,13 @@ export function ExpenseForm({ mode = "create", initialValues }: ExpenseFormProps
   const amountRef = useRef<HTMLInputElement>(null);
   const categoryRef = useRef<HTMLSelectElement>(null);
   const dateRef = useRef<HTMLInputElement>(null);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const fieldRefs = {
     title: titleRef,
     amount: amountRef,
     category: categoryRef,
     expenseDate: dateRef,
+    description: descriptionRef,
   };
 
   const [values, setValues] = useState<FormValues>(() => ({
@@ -88,6 +90,7 @@ export function ExpenseForm({ mode = "create", initialValues }: ExpenseFormProps
     ...initialValues,
   }));
   const [errors, setErrors] = useState<FormErrors>({});
+  const [formError, setFormError] = useState<string | null>(null);
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -108,10 +111,15 @@ export function ExpenseForm({ mode = "create", initialValues }: ExpenseFormProps
     }
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setHasAttemptedSubmit(true);
+    if (isSubmitting) return; // empêche les doubles soumissions
 
+    setHasAttemptedSubmit(true);
+    setFormError(null);
+
+    // Validation côté client : améliore l'UX (retour immédiat), mais l'API reste la
+    // source de vérité finale — ses erreurs 422 sont fusionnées dans le même état.
     const nextErrors = validate(values);
     setErrors(nextErrors);
 
@@ -122,10 +130,73 @@ export function ExpenseForm({ mode = "create", initialValues }: ExpenseFormProps
     }
 
     setIsSubmitting(true);
-    // Simulation locale uniquement : aucune API ni persistance à ce stade.
-    window.setTimeout(() => {
-      router.push("/dashboard");
-    }, 900);
+
+    if (isEditMode) {
+      // Simulation locale uniquement : la modification n'est pas encore connectée à l'API.
+      window.setTimeout(() => {
+        router.push("/dashboard");
+      }, 900);
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/expenses", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: values.title.trim(),
+          amount: Number(values.amount),
+          category: values.category,
+          expenseDate: values.expenseDate,
+          ...(values.description.trim() ? { description: values.description.trim() } : {}),
+        }),
+      });
+
+      if (response.status === 201) {
+        router.push("/dashboard");
+        router.refresh();
+        return;
+      }
+
+      if (response.status === 401) {
+        router.push("/login");
+        return;
+      }
+
+      if (response.status === 422) {
+        const body = (await response.json().catch(() => null)) as {
+          error?: { details?: Record<string, string[]> };
+        } | null;
+        const details = body?.error?.details;
+
+        if (details) {
+          const mappedErrors = Object.fromEntries(
+            Object.entries(details).map(([field, messages]) => [field, messages[0]]),
+          ) as FormErrors;
+          setErrors((current) => ({ ...current, ...mappedErrors }));
+
+          const firstServerErrorField = [...fieldOrder, "description" as const].find(
+            (field) => mappedErrors[field],
+          );
+          if (firstServerErrorField) {
+            fieldRefs[firstServerErrorField].current?.focus();
+          }
+        } else {
+          setFormError("Une erreur est survenue. Veuillez réessayer.");
+        }
+
+        setIsSubmitting(false);
+        return;
+      }
+
+      // 400 (requête invalide), 500, ou tout autre statut inattendu.
+      setFormError("Une erreur est survenue. Veuillez réessayer.");
+      setIsSubmitting(false);
+    } catch {
+      // Échec réseau.
+      setFormError("Une erreur est survenue. Veuillez réessayer.");
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -250,14 +321,36 @@ export function ExpenseForm({ mode = "create", initialValues }: ExpenseFormProps
           Description <span className="font-normal text-foreground/50">(optionnelle)</span>
         </label>
         <textarea
+          ref={descriptionRef}
           id={descriptionId}
           name="description"
           rows={3}
           value={values.description}
           onChange={(event) => updateField("description", event.target.value)}
+          aria-invalid={errors.description ? true : undefined}
+          aria-describedby={errors.description ? `${descriptionId}-error` : undefined}
           placeholder="Détails supplémentaires…"
-          className={`mt-1.5 resize-none ${getInputClassName(false)}`}
+          className={`mt-1.5 resize-none ${getInputClassName(Boolean(errors.description))}`}
         />
+        {errors.description && (
+          <p
+            id={`${descriptionId}-error`}
+            className="mt-1.5 text-xs text-red-600 dark:text-red-400"
+          >
+            {errors.description}
+          </p>
+        )}
+      </div>
+
+      <div aria-live="polite">
+        {formError && (
+          <p
+            role="alert"
+            className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-400"
+          >
+            {formError}
+          </p>
+        )}
       </div>
 
       <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:justify-end">
