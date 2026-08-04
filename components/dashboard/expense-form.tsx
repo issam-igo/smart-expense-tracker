@@ -20,6 +20,7 @@ type FormErrors = Partial<Record<ValidatedField | "description", string>>;
 
 interface ExpenseFormProps {
   mode?: "create" | "edit";
+  id?: string;
   initialValues?: Partial<FormValues>;
 }
 
@@ -62,7 +63,7 @@ function getInputClassName(hasError: boolean) {
   }`;
 }
 
-export function ExpenseForm({ mode = "create", initialValues }: ExpenseFormProps) {
+export function ExpenseForm({ mode = "create", id, initialValues }: ExpenseFormProps) {
   const router = useRouter();
   const isEditMode = mode === "edit";
 
@@ -131,28 +132,33 @@ export function ExpenseForm({ mode = "create", initialValues }: ExpenseFormProps
 
     setIsSubmitting(true);
 
-    if (isEditMode) {
-      // Simulation locale uniquement : la modification n'est pas encore connectée à l'API.
-      window.setTimeout(() => {
-        router.push("/dashboard");
-      }, 900);
-      return;
-    }
+    const url = isEditMode ? `/api/expenses/${id}` : "/api/expenses";
+    const method = isEditMode ? "PATCH" : "POST";
+    const body = {
+      title: values.title.trim(),
+      amount: Number(values.amount),
+      category: values.category,
+      expenseDate: values.expenseDate,
+      ...(isEditMode
+        ? { description: values.description.trim() ? values.description.trim() : null }
+        : values.description.trim()
+          ? { description: values.description.trim() }
+          : {}),
+    };
+    const successStatus = isEditMode ? 200 : 201;
+
+    console.log("[expense-form] requête", method, url, body); // TODO: log temporaire de diagnostic, à retirer
 
     try {
-      const response = await fetch("/api/expenses", {
-        method: "POST",
+      const response = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: values.title.trim(),
-          amount: Number(values.amount),
-          category: values.category,
-          expenseDate: values.expenseDate,
-          ...(values.description.trim() ? { description: values.description.trim() } : {}),
-        }),
+        body: JSON.stringify(body),
       });
 
-      if (response.status === 201) {
+      console.log("[expense-form] réponse", response.status); // TODO: log temporaire de diagnostic, à retirer
+
+      if (response.status === successStatus) {
         router.push("/dashboard");
         router.refresh();
         return;
@@ -163,11 +169,17 @@ export function ExpenseForm({ mode = "create", initialValues }: ExpenseFormProps
         return;
       }
 
+      if (response.status === 404) {
+        setFormError("Cette dépense n'existe plus.");
+        setIsSubmitting(false);
+        return;
+      }
+
       if (response.status === 422) {
-        const body = (await response.json().catch(() => null)) as {
+        const responseBody = (await response.json().catch(() => null)) as {
           error?: { details?: Record<string, string[]> };
         } | null;
-        const details = body?.error?.details;
+        const details = responseBody?.error?.details;
 
         if (details) {
           const mappedErrors = Object.fromEntries(

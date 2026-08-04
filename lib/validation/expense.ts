@@ -19,6 +19,16 @@ export const expenseCreateSchema = z.object({
 
 export const expenseUpdateSchema = expenseCreateSchema
   .partial()
+  // Une mise à jour doit pouvoir vider une description existante : la valeur envoyée
+  // dans ce cas est `null` (à distinguer d'une clé absente, qui signifie "ne pas changer").
+  .extend({
+    description: z
+      .string()
+      .trim()
+      .max(500, "La description ne peut pas dépasser 500 caractères.")
+      .nullable()
+      .optional(),
+  })
   .strict()
   .refine((data) => Object.keys(data).length > 0, {
     message: "Aucune donnée à mettre à jour.",
