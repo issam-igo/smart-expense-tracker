@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useId, useState } from "react";
+import Link from "next/link";
 import { login, type LoginState } from "@/lib/actions/auth";
 import { SpinnerIcon } from "@/components/spinner-icon";
 
@@ -48,12 +49,20 @@ export function LoginForm() {
       </div>
 
       <div>
-        <label
-          htmlFor={passwordId}
-          className="block text-sm font-medium text-foreground"
-        >
-          Mot de passe
-        </label>
+        <div className="flex items-center justify-between gap-2">
+          <label
+            htmlFor={passwordId}
+            className="block text-sm font-medium text-foreground"
+          >
+            Mot de passe
+          </label>
+          <Link
+            href="/forgot-password"
+            className="rounded text-xs font-medium text-brand hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+          >
+            Mot de passe oublié ?
+          </Link>
+        </div>
         <div className="relative mt-1.5">
           <input
             id={passwordId}
