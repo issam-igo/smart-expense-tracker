@@ -147,16 +147,12 @@ export function ExpenseForm({ mode = "create", id, initialValues }: ExpenseFormP
     };
     const successStatus = isEditMode ? 200 : 201;
 
-    console.log("[expense-form] requête", method, url, body); // TODO: log temporaire de diagnostic, à retirer
-
     try {
       const response = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
-
-      console.log("[expense-form] réponse", response.status); // TODO: log temporaire de diagnostic, à retirer
 
       if (response.status === successStatus) {
         router.push("/dashboard");

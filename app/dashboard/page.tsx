@@ -3,13 +3,17 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { computeSummary } from "@/lib/expenses/summary";
 import { toExpense, type ExpenseRow } from "@/lib/expenses/mappers";
+import { parseMonthParam, getMonthRange } from "@/lib/expenses/month";
 import { SummaryCards } from "@/components/dashboard/summary-cards";
 import { ExpenseChart } from "@/components/dashboard/expense-chart";
 import { ExpenseList } from "@/components/dashboard/expense-list";
+import { MonthFilter } from "@/components/month-filter";
 
-const RECENT_EXPENSES_LIMIT = 5;
-
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ month?: string }>;
+}) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -21,11 +25,17 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
-  // Aucun filtre user_id ici : la policy RLS SELECT restreint déjà le résultat
-  // aux dépenses de l'utilisateur connecté.
+  const { month: rawMonth } = await searchParams;
+  const month = parseMonthParam(rawMonth);
+  const { start, end } = getMonthRange(month);
+
+  // Filtre appliqué côté Supabase (pas de chargement de toutes les dépenses à filtrer
+  // en JS). Aucun filtre user_id : la policy RLS SELECT restreint déjà le résultat.
   const { data, error } = await supabase
     .from("expenses")
     .select("*")
+    .gte("expense_date", start)
+    .lt("expense_date", end)
     .order("expense_date", { ascending: false })
     .order("created_at", { ascending: false });
 
@@ -42,8 +52,6 @@ export default async function DashboardPage() {
 
   const expenses = (data as ExpenseRow[]).map(toExpense);
   const summary = computeSummary(expenses);
-  // Déjà trié par la requête (expense_date desc, created_at desc).
-  const recentExpenses = expenses.slice(0, RECENT_EXPENSES_LIMIT);
 
   return (
     <div className="space-y-8">
@@ -52,13 +60,16 @@ export default async function DashboardPage() {
           <h1 className="text-2xl font-bold tracking-tight text-foreground">Dashboard</h1>
           <p className="mt-1 text-sm text-foreground/60">Aperçu de vos dépenses.</p>
         </div>
-        <Link
-          href="/dashboard/expenses/new"
-          className="inline-flex items-center justify-center gap-2 rounded-full bg-brand px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-brand/30 transition-colors hover:bg-brand/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
-        >
-          <PlusIcon />
-          Ajouter une dépense
-        </Link>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <MonthFilter month={month} />
+          <Link
+            href="/dashboard/expenses/new"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-brand px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-brand/30 transition-colors hover:bg-brand/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+          >
+            <PlusIcon />
+            Ajouter une dépense
+          </Link>
+        </div>
       </div>
 
       <SummaryCards summary={summary} />
@@ -83,7 +94,7 @@ export default async function DashboardPage() {
           Dernières dépenses
         </h2>
         <div className="mt-2">
-          <ExpenseList expenses={recentExpenses} />
+          <ExpenseList expenses={expenses} />
         </div>
       </section>
     </div>

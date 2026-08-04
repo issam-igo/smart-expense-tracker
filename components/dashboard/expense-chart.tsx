@@ -17,8 +17,8 @@ export function ExpenseChart({ data }: { data: CategoryTotal[] }) {
   if (data.length === 0) {
     return (
       <EmptyState
-        title="Aucune dépense à afficher"
-        description="Le graphique apparaîtra dès que vous aurez ajouté une dépense."
+        title="Aucune dépense pour ce mois"
+        description="Le graphique apparaîtra dès que vous aurez ajouté une dépense pour ce mois."
       />
     );
   }

@@ -8,8 +8,8 @@ export function ExpenseList({ expenses }: { expenses: Expense[] }) {
   if (expenses.length === 0) {
     return (
       <EmptyState
-        title="Aucune dépense pour le moment"
-        description="Ajoutez votre première dépense pour la voir apparaître ici."
+        title="Aucune dépense pour ce mois"
+        description="Ajoutez une dépense ou sélectionnez un autre mois."
       />
     );
   }

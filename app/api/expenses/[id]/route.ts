@@ -47,7 +47,6 @@ export async function PATCH(request: Request, { params }: RouteParams) {
     .maybeSingle();
 
   if (error) {
-    console.error("[PATCH /api/expenses/:id] erreur Supabase :", error.message); // TODO: log temporaire de diagnostic, à retirer
     return jsonError(500, "Une erreur est survenue.");
   }
 

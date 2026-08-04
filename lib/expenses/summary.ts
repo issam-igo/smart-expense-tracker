@@ -30,17 +30,13 @@ export function computeSummary(expenses: Expense[]): ExpenseSummary {
 
   const topCategory = byCategory[0]?.category ?? null;
 
-  const now = new Date();
-  const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-  const monthTotal = expenses
-    .filter((expense) => expense.expenseDate.startsWith(currentMonthKey))
-    .reduce((sum, expense) => sum + expense.amount, 0);
-
+  // Le tableau reçu est déjà filtré sur la période affichée par l'appelant (le mois
+  // sélectionné sur le dashboard) : monthTotal est donc simplement le total de ce lot.
   return {
     total,
     count: expenses.length,
     topCategory,
-    monthTotal,
+    monthTotal: total,
     byCategory,
   };
 }
