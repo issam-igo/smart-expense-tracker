@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { EXPENSE_CATEGORIES } from "@/types/expense";
 import { SpinnerIcon } from "@/components/spinner-icon";
+import { useToast } from "@/components/toast/toast-provider";
 
 const emptyValues = {
   title: "",
@@ -65,6 +66,7 @@ function getInputClassName(hasError: boolean) {
 
 export function ExpenseForm({ mode = "create", id, initialValues }: ExpenseFormProps) {
   const router = useRouter();
+  const showToast = useToast();
   const isEditMode = mode === "edit";
 
   const titleId = useId();
@@ -91,7 +93,6 @@ export function ExpenseForm({ mode = "create", id, initialValues }: ExpenseFormP
     ...initialValues,
   }));
   const [errors, setErrors] = useState<FormErrors>({});
-  const [formError, setFormError] = useState<string | null>(null);
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -117,7 +118,6 @@ export function ExpenseForm({ mode = "create", id, initialValues }: ExpenseFormP
     if (isSubmitting) return; // empêche les doubles soumissions
 
     setHasAttemptedSubmit(true);
-    setFormError(null);
 
     // Validation côté client : améliore l'UX (retour immédiat), mais l'API reste la
     // source de vérité finale — ses erreurs 422 sont fusionnées dans le même état.
@@ -155,6 +155,7 @@ export function ExpenseForm({ mode = "create", id, initialValues }: ExpenseFormP
       });
 
       if (response.status === successStatus) {
+        showToast("success", isEditMode ? "Dépense modifiée" : "Dépense créée");
         router.push("/dashboard");
         router.refresh();
         return;
@@ -166,7 +167,7 @@ export function ExpenseForm({ mode = "create", id, initialValues }: ExpenseFormP
       }
 
       if (response.status === 404) {
-        setFormError("Cette dépense n'existe plus.");
+        showToast("error", "Cette dépense n'existe plus.");
         setIsSubmitting(false);
         return;
       }
@@ -190,7 +191,7 @@ export function ExpenseForm({ mode = "create", id, initialValues }: ExpenseFormP
             fieldRefs[firstServerErrorField].current?.focus();
           }
         } else {
-          setFormError("Une erreur est survenue. Veuillez réessayer.");
+          showToast("error", "Une erreur est survenue.");
         }
 
         setIsSubmitting(false);
@@ -198,11 +199,11 @@ export function ExpenseForm({ mode = "create", id, initialValues }: ExpenseFormP
       }
 
       // 400 (requête invalide), 500, ou tout autre statut inattendu.
-      setFormError("Une erreur est survenue. Veuillez réessayer.");
+      showToast("error", "Une erreur est survenue.");
       setIsSubmitting(false);
     } catch {
       // Échec réseau.
-      setFormError("Une erreur est survenue. Veuillez réessayer.");
+      showToast("error", "Une erreur est survenue.");
       setIsSubmitting(false);
     }
   }
@@ -346,17 +347,6 @@ export function ExpenseForm({ mode = "create", id, initialValues }: ExpenseFormP
             className="mt-1.5 text-xs text-red-600 dark:text-red-400"
           >
             {errors.description}
-          </p>
-        )}
-      </div>
-
-      <div aria-live="polite">
-        {formError && (
-          <p
-            role="alert"
-            className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-400"
-          >
-            {formError}
           </p>
         )}
       </div>

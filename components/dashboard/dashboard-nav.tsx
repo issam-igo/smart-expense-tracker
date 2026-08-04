@@ -5,13 +5,14 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { LogoMark } from "@/components/landing/logo-mark";
 import { LogoutButton } from "@/components/logout-button";
+import { UserProfile, type UserProfileInfo } from "@/components/dashboard/user-profile";
 
 const navLinks = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/dashboard/expenses/new", label: "Ajouter une dépense" },
 ];
 
-export function DashboardNav() {
+export function DashboardNav({ user }: { user: UserProfileInfo | null }) {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -38,7 +39,7 @@ export function DashboardNav() {
         </nav>
 
         <div className="hidden items-center gap-4 md:flex">
-          <UserZone />
+          {user && <UserProfile user={user} />}
           <LogoutButton />
         </div>
 
@@ -73,9 +74,11 @@ export function DashboardNav() {
             ))}
           </nav>
 
-          <div className="mt-3 border-t border-black/5 pt-3 dark:border-white/10">
-            <UserZone />
-          </div>
+          {user && (
+            <div className="mt-3 border-t border-black/5 pt-3 dark:border-white/10">
+              <UserProfile user={user} />
+            </div>
+          )}
 
           <LogoutButton className="mt-3 w-full" />
         </div>
@@ -112,23 +115,6 @@ function NavLink({
     >
       {children}
     </Link>
-  );
-}
-
-function UserZone() {
-  return (
-    <div className="flex min-w-0 items-center gap-2.5">
-      <span
-        aria-hidden="true"
-        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand/10 text-xs font-semibold text-brand"
-      >
-        CM
-      </span>
-      <div className="min-w-0 leading-tight">
-        <p className="truncate text-sm font-medium text-foreground">Camille Martin</p>
-        <p className="truncate text-xs text-foreground/50">camille.martin@example.com</p>
-      </div>
-    </div>
   );
 }
 

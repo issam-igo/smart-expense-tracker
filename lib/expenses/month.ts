@@ -1,4 +1,4 @@
-const MONTH_KEY_PATTERN = /^\d{4}-(0[1-9]|1[0-2])$/;
+export const MONTH_KEY_PATTERN = /^\d{4}-(0[1-9]|1[0-2])$/;
 
 export function getCurrentMonthKey(): string {
   const now = new Date();
@@ -11,6 +11,14 @@ export function parseMonthParam(value: string | undefined): string {
     return value;
   }
   return getCurrentMonthKey();
+}
+
+// "2026-08" -> "2026-07" ; "2026-01" -> "2025-12".
+export function getPreviousMonthKey(monthKey: string): string {
+  const [year, month] = monthKey.split("-").map(Number);
+  const previousMonth = month === 1 ? 12 : month - 1;
+  const previousYear = month === 1 ? year - 1 : year;
+  return `${previousYear}-${String(previousMonth).padStart(2, "0")}`;
 }
 
 export interface MonthRange {

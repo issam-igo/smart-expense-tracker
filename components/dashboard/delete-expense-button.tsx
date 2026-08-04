@@ -3,17 +3,17 @@
 import { useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { SpinnerIcon } from "@/components/spinner-icon";
+import { useToast } from "@/components/toast/toast-provider";
 
 export function DeleteExpenseButton({ id, title }: { id: string; title: string }) {
   const router = useRouter();
+  const showToast = useToast();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const dialogTitleId = useId();
 
   const [isDeleting, setIsDeleting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   function openConfirm() {
-    setError(null);
     dialogRef.current?.showModal();
   }
 
@@ -26,13 +26,13 @@ export function DeleteExpenseButton({ id, title }: { id: string; title: string }
     if (isDeleting) return; // empêche les doubles clics
 
     setIsDeleting(true);
-    setError(null);
 
     try {
       const response = await fetch(`/api/expenses/${id}`, { method: "DELETE" });
 
       if (response.status === 204) {
         dialogRef.current?.close();
+        showToast("success", "Dépense supprimée");
         router.refresh();
         return;
       }
@@ -43,16 +43,19 @@ export function DeleteExpenseButton({ id, title }: { id: string; title: string }
       }
 
       if (response.status === 404) {
-        setError("Cette dépense n'existe plus.");
+        dialogRef.current?.close();
+        showToast("error", "Cette dépense n'existe plus.");
         setIsDeleting(false);
         return;
       }
 
       // 500 ou tout autre statut inattendu.
-      setError("Une erreur est survenue. Veuillez réessayer.");
+      dialogRef.current?.close();
+      showToast("error", "Une erreur est survenue.");
       setIsDeleting(false);
     } catch {
-      setError("Une erreur est survenue. Veuillez réessayer.");
+      dialogRef.current?.close();
+      showToast("error", "Une erreur est survenue.");
       setIsDeleting(false);
     }
   }
@@ -80,15 +83,6 @@ export function DeleteExpenseButton({ id, title }: { id: string; title: string }
         <p className="mt-1.5 text-sm text-foreground/60">
           « {title} » sera définitivement supprimée. Cette action est irréversible.
         </p>
-
-        {error && (
-          <p
-            role="alert"
-            className="mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-400"
-          >
-            {error}
-          </p>
-        )}
 
         <div className="mt-5 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <button

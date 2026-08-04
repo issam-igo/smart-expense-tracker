@@ -9,7 +9,6 @@ export interface ExpenseSummary {
   total: number;
   count: number;
   topCategory: ExpenseCategory | null;
-  monthTotal: number;
   byCategory: CategoryTotal[];
 }
 
@@ -30,13 +29,10 @@ export function computeSummary(expenses: Expense[]): ExpenseSummary {
 
   const topCategory = byCategory[0]?.category ?? null;
 
-  // Le tableau reçu est déjà filtré sur la période affichée par l'appelant (le mois
-  // sélectionné sur le dashboard) : monthTotal est donc simplement le total de ce lot.
   return {
     total,
     count: expenses.length,
     topCategory,
-    monthTotal: total,
     byCategory,
   };
 }

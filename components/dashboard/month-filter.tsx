@@ -1,16 +1,16 @@
 "use client";
 
 import { useId, type ChangeEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useUpdateSearchParam } from "@/components/dashboard/use-update-search-param";
 
 export function MonthFilter({ month }: { month: string }) {
-  const router = useRouter();
+  const updateParam = useUpdateSearchParam();
   const inputId = useId();
 
   function handleChange(event: ChangeEvent<HTMLInputElement>) {
     const value = event.target.value;
     if (!value) return;
-    router.push(`/dashboard?month=${value}`);
+    updateParam("month", value);
   }
 
   return (

@@ -133,6 +133,20 @@ Uniquement si le projet principal est terminé.
 
 ---
 
+
+## Budget mensuel
+
+- Chaque utilisateur peut définir un budget pour un mois donné.
+- Un utilisateur ne peut avoir qu’un seul budget par mois.
+- Le dashboard affiche :
+  - le budget du mois ;
+  - les dépenses du mois ;
+  - le montant restant ;
+  - le pourcentage utilisé.
+- Le budget doit respecter le mois sélectionné dans le dashboard.
+
+---
+
 # Hors périmètre
 
 Ne pas implémenter sans validation :

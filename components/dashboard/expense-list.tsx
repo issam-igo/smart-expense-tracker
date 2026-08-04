@@ -4,9 +4,14 @@ import { formatCurrency, formatDate } from "@/lib/format";
 import { EmptyState } from "@/components/empty-state";
 import { DeleteExpenseButton } from "@/components/dashboard/delete-expense-button";
 
-export function ExpenseList({ expenses }: { expenses: Expense[] }) {
+export function ExpenseList({ expenses, search = "" }: { expenses: Expense[]; search?: string }) {
   if (expenses.length === 0) {
-    return (
+    return search ? (
+      <EmptyState
+        title="Aucune dépense ne correspond à votre recherche."
+        description="Essayez un autre mot-clé ou modifiez vos filtres."
+      />
+    ) : (
       <EmptyState
         title="Aucune dépense pour ce mois"
         description="Ajoutez une dépense ou sélectionnez un autre mois."
