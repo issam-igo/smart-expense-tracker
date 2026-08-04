@@ -11,8 +11,18 @@ import {
 } from "recharts";
 import type { CategoryTotal } from "@/lib/expenses/summary";
 import { formatCurrency } from "@/lib/format";
+import { EmptyState } from "@/components/empty-state";
 
 export function ExpenseChart({ data }: { data: CategoryTotal[] }) {
+  if (data.length === 0) {
+    return (
+      <EmptyState
+        title="Aucune dépense à afficher"
+        description="Le graphique apparaîtra dès que vous aurez ajouté une dépense."
+      />
+    );
+  }
+
   const chartLabel = data
     .map((item) => `${item.category} : ${formatCurrency(item.total)}`)
     .join(", ");
