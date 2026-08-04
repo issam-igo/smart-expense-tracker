@@ -62,6 +62,13 @@ export default async function DashboardPage({
         </div>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <MonthFilter month={month} />
+          <a
+            href={`/api/expenses/export?month=${month}`}
+            className="inline-flex items-center justify-center gap-2 rounded-full border border-black/10 px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-black/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 dark:border-white/15 dark:hover:bg-white/10"
+          >
+            <DownloadIcon />
+            Exporter CSV
+          </a>
           <Link
             href="/dashboard/expenses/new"
             className="inline-flex items-center justify-center gap-2 rounded-full bg-brand px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-brand/30 transition-colors hover:bg-brand/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
@@ -98,6 +105,25 @@ export default async function DashboardPage({
         </div>
       </section>
     </div>
+  );
+}
+
+function DownloadIcon() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      className="h-4 w-4"
+      aria-hidden="true"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M12 3v12m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"
+      />
+    </svg>
   );
 }
 
