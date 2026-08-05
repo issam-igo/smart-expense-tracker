@@ -78,6 +78,8 @@ Le projet a été conçu avec une priorité claire : **simplicité, robustesse e
 | Tests | Vitest | Tests unitaires de la logique métier et des schémas Zod |
 | Déploiement | Vercel | Hébergement cible |
 
+Cette stack a été choisie notamment parce qu'elle correspond aux technologies demandées dans l'offre d'emploi visée.
+
 ## 6. Captures d'écran
 
 | Page d'accueil | Connexion |
@@ -297,8 +299,7 @@ ChatGPT est utilisé en amont de l'implémentation, principalement pour :
 - réfléchir à l'architecture envisageable ;
 - préparer des prompts structurés et sans ambiguïté ;
 - challenger les choix techniques avant de les valider ;
-- préparer la documentation (comme ce README) ;
-- préparer les entretiens techniques autour du projet.
+- préparer la documentation (comme ce README).
 
 #### 3. Implémentation
 
