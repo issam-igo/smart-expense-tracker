@@ -69,7 +69,7 @@ export function ExportCsvButton({
       type="button"
       onClick={handleExport}
       disabled={isExporting}
-      className="inline-flex items-center justify-center gap-2 rounded-full border border-black/10 px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-black/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70 dark:border-white/15 dark:hover:bg-white/10"
+      className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-black/10 px-4 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-black/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-70 dark:border-white/15 dark:hover:bg-white/10 sm:w-auto"
     >
       {isExporting ? <SpinnerIcon /> : <DownloadIcon />}
       Exporter CSV

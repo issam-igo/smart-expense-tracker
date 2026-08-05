@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 export function ExpenseFormPage({
   title,
@@ -11,7 +13,15 @@ export function ExpenseFormPage({
 }) {
   return (
     <div className="mx-auto max-w-xl">
-      <div>
+      <Link
+        href="/dashboard"
+        className="inline-flex items-center gap-1.5 rounded-md text-sm font-medium text-foreground/60 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+      >
+        <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+        Retour
+      </Link>
+
+      <div className="mt-4">
         <h1 className="text-2xl font-bold tracking-tight text-foreground">{title}</h1>
         <p className="mt-1 text-sm text-foreground/60">{description}</p>
       </div>

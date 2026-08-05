@@ -1,70 +1,20 @@
+import { ListChecks, PieChart, Target } from "lucide-react";
+
 const benefits = [
   {
     title: "Suivez vos dépenses",
-    description: "Enregistrez vos transactions en quelques secondes.",
-    icon: (
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        className="h-6 w-6"
-        aria-hidden="true"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"
-        />
-      </svg>
-    ),
+    description: "Enregistrez et retrouvez toutes vos dépenses en quelques secondes.",
+    icon: ListChecks,
   },
   {
-    title: "Visualisez vos catégories",
-    description:
-      "Comprenez où va votre argent grâce à des graphiques clairs.",
-    icon: (
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        className="h-6 w-6"
-        aria-hidden="true"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M11 3.05V12h8.95A9 9 0 1 1 11 3.05Z"
-        />
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M20 12a8 8 0 0 0-8-8v8h8Z"
-        />
-      </svg>
-    ),
+    title: "Visualisez vos finances",
+    description: "Des graphiques clairs pour comprendre vos habitudes de consommation.",
+    icon: PieChart,
   },
   {
-    title: "Mieux comprendre son budget",
-    description:
-      "Identifiez vos habitudes de consommation et prenez de meilleures décisions.",
-    icon: (
-      <svg
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        className="h-6 w-6"
-        aria-hidden="true"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          d="M9 12l2 2 4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-        />
-      </svg>
-    ),
+    title: "Atteignez vos objectifs",
+    description: "Fixez un budget mensuel et suivez votre progression en temps réel.",
+    icon: Target,
   },
 ];
 
@@ -75,14 +25,17 @@ export function BenefitsSection() {
       className="px-4 py-16 sm:px-6 lg:px-8"
     >
       <div className="mx-auto max-w-5xl text-center">
+        <p className="mx-auto w-fit text-xs font-semibold tracking-wide text-brand uppercase">
+          Pourquoi nous choisir
+        </p>
         <h2
           id="benefits-heading"
-          className="text-balance text-2xl font-bold tracking-tight text-foreground sm:text-3xl"
+          className="mt-2 text-balance text-2xl font-bold tracking-tight text-foreground sm:text-3xl"
         >
-          Pourquoi choisir Smart Expense Tracker ?
+          Une application conçue pour vous simplifier la vie
         </h2>
         <p className="mt-2 text-sm text-foreground/60 sm:text-base">
-          Des outils conçus pour simplifier votre vie financière.
+          Des outils simples et clairs pour reprendre le contrôle de votre budget.
         </p>
         <ul className="mt-10 grid gap-5 sm:grid-cols-2 md:grid-cols-3">
           {benefits.map((benefit) => (
@@ -91,7 +44,7 @@ export function BenefitsSection() {
               className="rounded-2xl border border-black/5 bg-white p-6 text-left shadow-sm transition-all motion-safe:hover:-translate-y-1 hover:shadow-md dark:border-white/10 dark:bg-white/5"
             >
               <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand/10 text-brand">
-                {benefit.icon}
+                <benefit.icon className="h-6 w-6" aria-hidden="true" />
               </span>
               <h3 className="mt-4 text-base font-semibold text-foreground">
                 {benefit.title}

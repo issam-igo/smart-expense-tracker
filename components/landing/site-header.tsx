@@ -7,10 +7,10 @@ export function SiteHeader() {
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3 sm:px-6 lg:px-8">
         <Link
           href="/"
-          className="flex min-w-0 items-center gap-2 rounded-md text-sm font-semibold tracking-tight text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 sm:text-lg"
+          className="flex shrink-0 items-center gap-2 rounded-md text-sm font-semibold tracking-tight text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 sm:text-lg"
         >
           <LogoMark className="h-7 w-7 shrink-0 sm:h-8 sm:w-8" />
-          <span className="min-w-0 truncate">Smart Expense Tracker</span>
+          <span className="hidden truncate sm:inline">Smart Expense Tracker</span>
         </Link>
         <nav
           aria-label="Navigation principale"

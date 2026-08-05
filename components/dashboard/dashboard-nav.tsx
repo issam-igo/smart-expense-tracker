@@ -18,12 +18,12 @@ export function DashboardNav({ user }: { user: UserProfileInfo | null }) {
 
   return (
     <header className="sticky top-0 z-50 border-b border-black/5 bg-white/80 backdrop-blur-md dark:border-white/10 dark:bg-black/60">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-4 py-3 sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3.5 sm:px-6 lg:px-8">
         <Link
           href="/dashboard"
-          className="flex min-w-0 items-center gap-2 rounded-md text-sm font-semibold tracking-tight text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 sm:text-base"
+          className="flex min-w-0 items-center gap-2.5 rounded-md text-sm font-semibold tracking-tight text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 sm:text-base"
         >
-          <LogoMark className="h-7 w-7 shrink-0" />
+          <LogoMark className="h-8 w-8 shrink-0" />
           <span className="min-w-0 truncate">Smart Expense Tracker</span>
         </Link>
 
@@ -38,7 +38,7 @@ export function DashboardNav({ user }: { user: UserProfileInfo | null }) {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-4 md:flex">
+        <div className="hidden items-center gap-3 md:flex">
           {user && <UserProfile user={user} />}
           <LogoutButton />
         </div>
