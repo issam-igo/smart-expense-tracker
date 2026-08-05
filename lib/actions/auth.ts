@@ -43,12 +43,14 @@ export async function signup(_prevState: SignupState, formData: FormData): Promi
 
   const { name, email, password } = parsed.data;
   const supabase = await createClient();
+  const origin = await getOrigin();
 
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
       data: { full_name: name },
+      emailRedirectTo: `${origin}/auth/callback`,
     },
   });
 
