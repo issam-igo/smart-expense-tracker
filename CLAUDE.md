@@ -104,6 +104,19 @@ Afficher :
 
 ---
 
+## Budget mensuel
+
+- Chaque utilisateur peut définir un budget pour un mois donné.
+- Un utilisateur ne peut avoir qu’un seul budget par mois.
+- Le dashboard affiche :
+  - le budget du mois ;
+  - les dépenses du mois ;
+  - le montant restant ;
+  - le pourcentage utilisé.
+- Le budget doit respecter le mois sélectionné dans le dashboard.
+
+---
+
 ## Graphique
 
 Afficher un graphique représentant les dépenses par catégorie.
@@ -127,27 +140,15 @@ L'application doit être entièrement responsive.
 Uniquement si le projet principal est terminé.
 
 - Conseils IA
-- Export CSV
-- Recherche
-- Filtre par catégorie
+- Dépenses récurrentes
+- Notifications
+- Export PDF
 
 ---
 
+# Hors périmètre de cette version
 
-## Budget mensuel
-
-- Chaque utilisateur peut définir un budget pour un mois donné.
-- Un utilisateur ne peut avoir qu’un seul budget par mois.
-- Le dashboard affiche :
-  - le budget du mois ;
-  - les dépenses du mois ;
-  - le montant restant ;
-  - le pourcentage utilisé.
-- Le budget doit respecter le mois sélectionné dans le dashboard.
-
----
-
-# Hors périmètre
+Les fonctionnalités suivantes ne sont volontairement pas implémentées dans cette version. Elles pourront être développées ultérieurement si le périmètre du projet évolue.
 
 Ne pas implémenter sans validation :
 
@@ -176,6 +177,15 @@ Toujours privilégier la simplicité.
 - expenseDate
 - description
 - createdAt
+
+## MonthlyBudget
+
+- id
+- userId
+- month
+- amount
+- createdAt
+- updatedAt
 
 ---
 
@@ -207,7 +217,6 @@ app/
 components/
 lib/
 types/
-utils/
 ```
 
 Créer uniquement les dossiers réellement nécessaires.
@@ -325,15 +334,34 @@ Avant chaque commit :
 
 Avant de terminer une fonctionnalité :
 
-Exécuter :
+Exécuter systématiquement :
 
 - npm run lint
-
-Puis :
-
+- npm run test:run
+- npx tsc --noEmit
 - npm run build
 
-Corriger toutes les erreurs avant de continuer.
+Corriger toutes les erreurs avant de considérer la fonctionnalité comme terminée.
+
+---
+
+# Tests
+
+Les tests unitaires utilisent Vitest.
+
+Tester uniquement :
+
+- logique métier
+- fonctions pures
+- validation Zod
+
+Ne pas ajouter de tests complexes dans cette phase pour :
+
+- Supabase
+- composants React
+- Route Handlers
+
+Chaque nouvelle fonction métier doit être testée.
 
 ---
 
