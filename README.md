@@ -36,8 +36,8 @@ Le projet a été conçu avec une priorité claire : **simplicité, robustesse e
 
 ## 2. Démonstration
 
-- **Application** : à compléter
-- **Dépôt GitHub** : à compléter
+- **Application** : [smart-expense-tracker-digitad.vercel.app](https://smart-expense-tracker-digitad.vercel.app)
+- **Dépôt GitHub** : [github.com/issam-igo/smart-expense-tracker](https://github.com/issam-igo/smart-expense-tracker)
 
 ## 3. Points forts du projet
 
@@ -80,15 +80,13 @@ Le projet a été conçu avec une priorité claire : **simplicité, robustesse e
 
 ## 6. Captures d'écran
 
-> Emplacements réservés — images à ajouter dans `docs/screenshots/`.
-
 | Page d'accueil | Connexion |
 |---|---|
 | ![Page d'accueil](docs/screenshots/landing.png) | ![Connexion](docs/screenshots/login.png) |
 
-| Dashboard | Formulaire de dépense |
+| Dashboard | Création d'une dépense |
 |---|---|
-| ![Dashboard](docs/screenshots/dashboard.png) | ![Formulaire de dépense](docs/screenshots/expense-form.png) |
+| ![Dashboard](docs/screenshots/dashboard.png) | ![Création d'une dépense](docs/screenshots/ajouter%20depense.png) |
 
 ## 7. Architecture
 
@@ -413,6 +411,8 @@ Avant toute modification :
 
 ## 21. Auteur
 
-- **Nom** : à compléter
-- **GitHub** : à compléter
-- **LinkedIn** : à compléter
+**Issam Igout**
+
+Développeur Full-Stack spécialisé en Next.js, TypeScript et Supabase.
+
+- **GitHub** : [github.com/issam-igo](https://github.com/issam-igo)
